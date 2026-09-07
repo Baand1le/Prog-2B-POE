@@ -1,3 +1,4 @@
+```yaml
 name: Part 1 - Repository Structure Validation
 
 on:
@@ -7,63 +8,70 @@ on:
     branches: [ main, master ]
 
 jobs:
-  validate-structure:
+  validate-part1-structure:
     runs-on: ubuntu-latest
-    name: Validate /docs folder and required files
+    name: Validate Part 1 /docs folder and required files
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check /docs folder exists
+      - name: Check Part 1 /docs folder exists
         run: |
-          if [ ! -d "docs" ]; then
-            echo "❌ /docs folder is missing"
+          if [ ! -d "Part 1/docs" ]; then
+            echo "❌ Part 1/docs folder is missing"
             exit 1
           fi
-          echo "✅ /docs folder found"
+          echo "✅ Part 1/docs folder found"
 
       - name: Check ERD file exists (PNG or PDF)
         run: |
           shopt -s nullglob nocaseglob
-          files=(docs/*erd*.png docs/*erd*.pdf)
+          files=("Part 1"/docs/*erd*.png "Part 1"/docs/*erd*.pdf)
+
           if [ ${#files[@]} -gt 0 ]; then
             echo "✅ ERD file found: ${files[0]}"
           else
-            echo "❌ No ERD file found in /docs (expected a .png or .pdf with 'erd' in the filename)"
+            echo "❌ No ERD file found in Part 1/docs"
+            echo "Expected a .png or .pdf file with 'erd' in the filename"
             exit 1
           fi
 
       - name: Check API endpoint plan exists (PDF or Markdown)
         run: |
           shopt -s nullglob nocaseglob
-          files=(docs/*endpoint*.pdf docs/*endpoint*.md docs/*api*plan*.pdf docs/*api*plan*.md)
+          files=("Part 1"/docs/*endpoint*.pdf "Part 1"/docs/*endpoint*.md "Part 1"/docs/*api*plan*.pdf "Part 1"/docs/*api*plan*.md)
+
           if [ ${#files[@]} -gt 0 ]; then
             echo "✅ Endpoint plan found: ${files[0]}"
           else
-            echo "❌ No endpoint plan found in /docs (expected a .pdf or .md with 'endpoint' or 'api plan' in the filename)"
+            echo "❌ No endpoint plan found in Part 1/docs"
+            echo "Expected a .pdf or .md file with 'endpoint' or 'api plan' in the filename"
             exit 1
           fi
 
       - name: Check SQL script exists
         run: |
           shopt -s nullglob nocaseglob
-          files=(docs/*.sql)
+          files=("Part 1"/docs/*.sql)
+
           if [ ${#files[@]} -gt 0 ]; then
             echo "✅ SQL script found: ${files[0]}"
           else
-            echo "❌ No .sql file found in /docs"
+            echo "❌ No .sql file found in Part 1/docs"
             exit 1
           fi
 
       - name: Check README exists
         run: |
           if [ -f "README.md" ]; then
-            echo "✅ README.md found"
+            echo "✅ README.md found in repository root"
           else
             echo "❌ README.md is missing from the repository root"
             exit 1
           fi
 
       - name: Summary
-        run: echo "🎉 All required Part 1 files are present in /docs"
+        run: |
+          echo "🎉 All required Part 1 files are present in Part 1/docs"
+```
