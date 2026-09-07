@@ -73,4 +73,3 @@ jobs:
       - name: Summary
         run: |
           echo "🎉 All required Part 1 files are present in Part 1/docs"
-```
