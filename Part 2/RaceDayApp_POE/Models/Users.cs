@@ -1,11 +1,14 @@
-﻿namespace RaceDayApp_POE.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RaceDayApp_POE.Models
 {
     public class Users
     {
+        [Key]
         public string userID {  get; set; }
         public int roleID { get; set; }
         public string PasswordHash { get; set; } = "";
-        public string fisrtName { get; set; }
+        public string firstName { get; set; }
         public string Surname { get; set; }
         public string Email { get; set; }
 

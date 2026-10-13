@@ -1,7 +1,10 @@
-﻿namespace RaceDayApp_POE.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RaceDayApp_POE.Models
 {
     public class Enrollments
     {
+        [Key]
         public string enrollmentID { get; set; }
         public string participantID { get; set; }
         public string eventID { get; set; }
