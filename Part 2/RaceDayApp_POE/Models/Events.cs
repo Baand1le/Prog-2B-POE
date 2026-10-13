@@ -3,7 +3,7 @@
     public class Events
     {
         public string eventID { get; set; }
-        public string orgaizerID { get; set; }
+        public string organiserID { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime Date {  get; set; }
@@ -12,9 +12,11 @@
         public string eventType { get; set; }
         
 
-        public Users Organizer { get; set; }
+        public Users Organiser { get; set; }
 
         public ICollection<Categories> Category { get; set; }
         public ICollection<Enrollments> Enrollment { get; set; }
-    }
-}
+
+    }//end of class: Events
+
+}//end of namespace

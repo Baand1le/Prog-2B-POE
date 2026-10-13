@@ -8,5 +8,7 @@
         public int finishPosition { get; set; }
 
         public Enrollments Enrollment { get; set; }
-    }
-}
+
+    }//end of class: Results
+
+}//end of namespace

@@ -9,6 +9,7 @@
 
         public Events  Event { get; set; }
 
-        public ICollection<Enrollments> Enrollement { get; set; }
-    }
-}
+        public ICollection<Enrollments> Enrollment { get; set; }
+    }//end of class: Categories
+
+}//end of namespace

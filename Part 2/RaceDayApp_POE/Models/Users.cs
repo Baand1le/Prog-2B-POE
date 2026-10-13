@@ -11,7 +11,9 @@
 
         public UserRoles userRole { get; set; }
 
-        public ICollection<Events> Events { get; set; }
-        public ICollection<Enrollments> Enrollement {  get; set; }
-    }
-}
+        public ICollection<Events> Event { get; set; }
+        public ICollection<Enrollments> Enrollment {  get; set; }
+
+    }//end of class: Users
+
+}//end of namespace

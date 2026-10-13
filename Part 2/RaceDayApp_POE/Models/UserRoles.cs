@@ -9,5 +9,7 @@ namespace RaceDayApp_POE.Models
         public string roleType { get; set; }
 
         public ICollection<Users> User {  get; set; }
-    }
-}
+
+    }//end of class: UserRoles
+
+}//end of namespace
