@@ -6,15 +6,15 @@ using RaceDayApp_POE.DTOs;
 using RaceDayApp_POE.Models;
 using System.Security.Claims;
 
-namespace api_proj.Controllers
+namespace RaceDayApp_POE.Controllers
 {
     [Route("api/events/{eventID}/categories")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly RaceDayDbContext _context;
 
-        public CategoryController(RaceDayDbContext context)
+        public CategoriesController(RaceDayDbContext context)
         {
             _context = context;
         }
