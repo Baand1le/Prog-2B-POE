@@ -5,7 +5,7 @@ namespace RaceDayApp_POE.Models
     public class UserRoles
     {
         [Key]
-        public int roleId { get; set; }
+        public int roleID { get; set; }
         public string roleType { get; set; }
 
         public ICollection<Users> User {  get; set; }
