@@ -2,11 +2,11 @@
 
 namespace RaceDayApp_POE.Controllers
 {
-    public class CategoriesController : Controller
+    [Route("api/events/{eventID}/categories")]
+    [ApiController]
+    public class CategoriesController : ControllerBase
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
-    }
-}
+       
+    }//end of class
+
+}//end of namespace
