@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using RaceDayApp_POE.Data;
+using RaceDayApp_POE.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +58,34 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+// Automatically seed default roles if they do not exist
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider
+        .GetRequiredService<RaceDayDbContext>();
+
+    // Add Organiser role if missing
+    if (!context.UserRole.Any(r => r.roleType == "Organiser"))
+    {
+        context.UserRole.Add(new UserRoles
+        {
+            roleType = "Organiser"
+        });
+    }
+
+    // Add Participant role if missing
+    if (!context.UserRole.Any(r => r.roleType == "Participant"))
+    {
+        context.UserRole.Add(new UserRoles
+        {
+            roleType = "Participant"
+        });
+    }
+
+    // Save any newly created roles
+    context.SaveChanges();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
