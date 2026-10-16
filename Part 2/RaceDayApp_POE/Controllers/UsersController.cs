@@ -6,7 +6,7 @@ using RaceDayApp_POE.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 
-namespace api_proj.Controllers
+namespace RaceDayApp_POE.Controllers
 {
     [Route("api/users")]
     [ApiController]

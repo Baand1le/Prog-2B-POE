@@ -9,7 +9,7 @@ using RaceDayApp_POE.Models;
 using System.Security.Claims;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace api_proj.Controllers
+namespace RaceDayApp_POE.Controllers
 {
     [Route("api/auth")]
     [ApiController]
