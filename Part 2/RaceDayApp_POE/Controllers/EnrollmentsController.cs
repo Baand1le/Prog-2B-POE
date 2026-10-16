@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RaceDayApp_POE.Data;
 using RaceDayApp_POE.DTOs;
 using RaceDayApp_POE.Models;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 
 namespace RaceDayApp_POE.Controllers
@@ -23,6 +24,11 @@ namespace RaceDayApp_POE.Controllers
         // POST: api/enrollments
         [HttpPost("enrollments")]
         [Authorize(Roles = "Participant")]
+        [SwaggerOperation(
+            Summary = "Enroll in a race event",
+            Description = "Allow an authenticated Participant to enroll in an upcoming event by selecting a " +
+            "category. The Participant's identity is obtained automatically from their login session."
+        )]
         public async Task<IActionResult> CreateEnrollment(
             [FromBody] CreateEnrollmentDTO dto)
         {
@@ -79,6 +85,10 @@ namespace RaceDayApp_POE.Controllers
         // GET: api/enrollments/mine
         [HttpGet("enrollments/mine")]
         [Authorize(Roles = "Participant")]
+        [SwaggerOperation(
+            Summary = "View your race enrollments",
+            Description = "Retrieve all race events and categories in which the logged-in Participant is enrolled."
+        )]
         public async Task<IActionResult> GetMyEnrollments()
         {
             var participantID = User.FindFirstValue(
@@ -106,6 +116,11 @@ namespace RaceDayApp_POE.Controllers
         // GET: api/events/{eventID}/enrollments
         [HttpGet("events/{eventID}/enrollments")]
         [Authorize(Roles = "Organiser")]
+        [SwaggerOperation(
+            Summary = "View Participants enrolled in an event",
+            Description = "Allow the event's Organiser to retrieve a list of Participants registered for" +
+            " that event."
+        )]
         public async Task<IActionResult> GetEventEnrollments(
             string eventID)
         {

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RaceDayApp_POE.Data;
 using RaceDayApp_POE.DTOs;
 using RaceDayApp_POE.Models;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 
 namespace RaceDayApp_POE.Controllers
@@ -22,6 +23,11 @@ namespace RaceDayApp_POE.Controllers
         // GET: api/events/{eventID}/categories
         [HttpGet]
         [AllowAnonymous]
+        [SwaggerOperation(
+            Summary = "View event categories",
+            Description = "Retrieve all categories available for a specific race event, including category" +
+            " names and age groups."
+        )]
         public async Task<IActionResult> GetCategories(string eventID)
         {
             bool eventExists = await _context.Event
@@ -48,6 +54,11 @@ namespace RaceDayApp_POE.Controllers
         // POST: api/events/{eventID}/categories
         [HttpPost]
         [Authorize(Roles = "Organiser")]
+        [SwaggerOperation(
+            Summary = "Create an event category",
+            Description = "Allow the Organiser who owns an event to create a new category with a category " +
+            "name and age group."
+        )]
         public async Task<IActionResult> CreateCategory(
             string eventID,
             [FromBody] CreateCategoryDTO dto)
@@ -89,6 +100,10 @@ namespace RaceDayApp_POE.Controllers
         // PUT: this is a description
         [HttpPut("{categoryID}")]
         [Authorize(Roles = "Organiser")]
+        [SwaggerOperation(
+            Summary = "Update an event category",
+            Description = "Allow the event's Organiser to update an existing category's name or age group."
+        )]
         public async Task<IActionResult> UpdateCategory(
             string eventID,
             string categoryID,
@@ -125,6 +140,11 @@ namespace RaceDayApp_POE.Controllers
         // DELETE: api/events/{eventID}/categories/{categoryID}
         [HttpDelete("{categoryID}")]
         [Authorize(Roles = "Organiser")]
+        [SwaggerOperation(
+            Summary = "Delete an event category",
+            Description = "Allow the event's Organiser to delete a category, provided no Participants are " +
+            "enrolled in it."
+        )]
         public async Task<IActionResult> DeleteCategory(
             string eventID,
             string categoryID)

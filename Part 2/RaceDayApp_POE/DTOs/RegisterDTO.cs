@@ -8,7 +8,7 @@ namespace RaceDayApp_POE.DTOs
         [Required] public string surname { get; set; } = "";
         [Required, EmailAddress] public string email { get; set; } = "";
         [Required, MinLength(8)] public string password { get; set; } = "";
-        [Required] public int roleID { get; set; }
+        [Required] public string roleType { get; set; } = "";
 
 
     }//end of class

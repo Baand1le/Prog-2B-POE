@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RaceDayApp_POE.Data;
 using RaceDayApp_POE.DTOs;
 using RaceDayApp_POE.Models;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 using Results = RaceDayApp_POE.Models.Results;
 
@@ -24,6 +25,11 @@ namespace RaceDayApp_POE.Controllers
         // POST: api/enrollments/{enrollmentID}/result
         [HttpPost("enrollments/{enrollmentID}/result")]
         [Authorize(Roles = "Organiser")]
+        [SwaggerOperation(
+            Summary = "Record a Participant's race result",
+            Description = "Allow the event's Organiser to record the finishing time and finishing position of" +
+            " an enrolled Participant."
+        )]
         public async Task<IActionResult> CreateResult(
             string enrollmentID,
             [FromBody] CreateResultDTO dto)
@@ -78,6 +84,11 @@ namespace RaceDayApp_POE.Controllers
         // PUT: api/enrollments/{enrollmentID}/result
         [HttpPut("enrollments/{enrollmentID}/result")]
         [Authorize(Roles = "Organiser")]
+        [SwaggerOperation(
+            Summary = "Update a Participant's race result",
+            Description = "Allow the event's Organiser to correct or update a previously recorded finishing time or " +
+            "position."
+        )]
         public async Task<IActionResult> UpdateResult(
             string enrollmentID,
             [FromBody] CreateResultDTO dto)
@@ -118,6 +129,11 @@ namespace RaceDayApp_POE.Controllers
         // GET: api/results/mine
         [HttpGet("results/mine")]
         [Authorize(Roles = "Participant")]
+        [SwaggerOperation(
+            Summary = "View your race results",
+            Description = "Retrieve the logged-in Participant's race history, including finishing times," +
+            " positions and total recorded finishers."
+        )]
         public async Task<IActionResult> GetMyResults()
         {
             var participantID = User.FindFirstValue(
@@ -151,6 +167,11 @@ namespace RaceDayApp_POE.Controllers
         // GET: api/events/{eventID}/results
         [HttpGet("events/{eventID}/results")]
         [Authorize(Roles = "Organiser")]
+        [SwaggerOperation(
+            Summary = "View all results for a race event",
+            Description = "Allow the event's Organiser to view the recorded finishing times and positions" +
+            " of Participants in that event."
+        )]
         public async Task<IActionResult> GetEventResults(
             string eventID)
         {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaceDayApp_POE.Data;
 using RaceDayApp_POE.DTOs;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 
 namespace api_proj.Controllers
@@ -21,6 +22,11 @@ namespace api_proj.Controllers
 
         // GET: api/users/me
         [HttpGet("me")]
+        [SwaggerOperation(
+        Summary = "View your profile",
+        Description = "Retrieve your personal account information, including your name, email address and " +
+            "assigned user role."
+        )]
         public async Task<IActionResult> GetMyProfile()
         {
             var userID = User.FindFirstValue(
@@ -47,6 +53,11 @@ namespace api_proj.Controllers
 
         // PUT: api/users/me
         [HttpPut("me")]
+        [SwaggerOperation(
+        Summary = "Update your profile",
+        Description = "Update your first name, surname or email address. Changes are applied only to your " +
+            "own account."
+        )]
         public async Task<IActionResult> UpdateMyProfile(
             [FromBody] UpdateUserDTO dto)
         {

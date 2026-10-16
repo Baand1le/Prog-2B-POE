@@ -7,6 +7,7 @@ using RaceDayApp_POE.Data;
 using RaceDayApp_POE.DTOs;
 using RaceDayApp_POE.Models;
 using System.Security.Claims;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace api_proj.Controllers
 {
@@ -24,8 +25,12 @@ namespace api_proj.Controllers
         // POST: api/auth/register
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register(
-            [FromBody] RegisterDTO dto)
+        [SwaggerOperation(
+            Summary = "Register a new RaceDay account",
+            Description = "Create a new account by providing your personal details, email address, password and" +
+            "user role. The roles to choose from are Organiser and Participant"
+            )]
+        public async Task<IActionResult> Register( [FromBody] RegisterDTO dto)
         {
             // Check whether the email is already registered
             bool emailExists = await _context.User
@@ -36,7 +41,7 @@ namespace api_proj.Controllers
 
             // Verify that the selected role exists
             var role = await _context.UserRole
-                .FirstOrDefaultAsync(r => r.roleID == dto.roleID);
+                .FirstOrDefaultAsync(r => r.roleType == dto.roleType);
 
             if (role == null ||
                 (role.roleType != "Organiser" &&
@@ -56,7 +61,7 @@ namespace api_proj.Controllers
                 firstName = dto.firstName,
                 Surname = dto.surname,
                 Email = dto.email,
-                roleID = dto.roleID,
+                roleID = role.roleID,
                 PasswordHash = hashedPassword
             };
 
@@ -75,8 +80,12 @@ namespace api_proj.Controllers
         // POST: api/auth/login
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(
-            [FromBody] LoginDTO dto)
+        [SwaggerOperation(
+            Summary = "Log in to your RaceDay account",
+            Description = "Enter your registered email address and password to authenticate and start" +
+            " a secure session."
+            )]
+        public async Task<IActionResult> Login( [FromBody] LoginDTO dto)
         {
             // Find the user and their role
             var user = await _context.User
@@ -128,6 +137,10 @@ namespace api_proj.Controllers
         // POST: api/auth/logout
         [HttpPost("logout")]
         [Authorize]
+        [SwaggerOperation(
+            Summary = "Logout of RaceDay",
+            Description = "End your current authenticated session and sign out securely."
+            )]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(
@@ -142,6 +155,11 @@ namespace api_proj.Controllers
         // GET: api/auth/me
         [HttpGet("me")]
         [Authorize]
+        [SwaggerOperation(
+            Summary = "View your authentication details",
+            Description = "Retrieve the user ID, email address and role associated with your current authenticated" +
+            "session"
+            )]
         public IActionResult GetCurrentUser()
         {
             return Ok(new

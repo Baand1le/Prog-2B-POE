@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RaceDayApp_POE.Data;
 using RaceDayApp_POE.DTOs;
 using RaceDayApp_POE.Models;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 
 namespace RaceDayApp_POE.Controllers
@@ -22,6 +23,11 @@ namespace RaceDayApp_POE.Controllers
 
         [HttpGet]
         [AllowAnonymous]
+        [SwaggerOperation(
+            Summary = "Browse all race events",
+            Description = "Retrieve a list of all available race events,including thier dates, locations, distances " +
+            "and event types."
+            )]
         public async Task<IActionResult> GetEvents()
         {
             var events = await _context.Event
@@ -45,6 +51,10 @@ namespace RaceDayApp_POE.Controllers
         //Get: api/events/{eventID}
         [HttpGet("{eventID}")]
         [AllowAnonymous]
+        [SwaggerOperation(
+        Summary = "View a specific race event",
+        Description = "Retrieve the details of a race event using its unique event ID."
+        )]
         public async Task<IActionResult> GetEvent(string eventID)
         {
             var raceEvent = await _context.Event
@@ -72,6 +82,11 @@ namespace RaceDayApp_POE.Controllers
         //Post: api/events
         [HttpPost]
         [Authorize(Roles = "Organiser")]
+        [SwaggerOperation(
+        Summary = "Create a new race event",
+        Description = "Allow an authenticated Organiser to create a race event. The event is automatically " +
+            "linked to the logged-in Organiser."
+        )]
         public async Task<IActionResult> CreateEvent([FromBody] EventDTO dto)
         {
             var organizerID =
@@ -111,6 +126,10 @@ namespace RaceDayApp_POE.Controllers
         //Put: api/events/{eventID}
         [HttpPut("{eventID}")]
         [Authorize(Roles = "Organiser")]
+        [SwaggerOperation(
+        Summary = "Update an existing race event",
+        Description = "Allow an Organiser to modify the details of a race event they own."
+        )]
         public async Task<IActionResult> UpdateEvent(
             string eventID, EventDTO dto)
         {
@@ -140,6 +159,11 @@ namespace RaceDayApp_POE.Controllers
         //Delete: api/events/{eventID}
         [HttpDelete("{eventID}")]
         [Authorize(Roles = "Organiser")]
+        [SwaggerOperation(
+        Summary = "Delete a race event",
+        Description = "Allow an Organiser to delete an event they own, provided it has no associated categories" +
+            " or enrollments."
+        )]
         public async Task<IActionResult> DeleteEvent(string eventID)
         {
             var raceEvent = await _context.Event.FindAsync(eventID);
