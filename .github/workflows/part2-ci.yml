@@ -1,0 +1,85 @@
+
+name: Part 2 - RaceDay API CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    name: Build and Test RaceDay API
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Download repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Install .NET 8
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Step 3: Find the API and test projects
+      - name: Locate RaceDay projects
+        id: projects
+        shell: bash
+        run: |
+          mapfile -t api_files < <(
+            find . -type f -name "RaceDayApp_POE.csproj" \
+              -not -path "*/bin/*" -not -path "*/obj/*"
+          )
+
+          mapfile -t test_files < <(
+            find . -type f -name "appTesting.csproj" \
+              -not -path "*/bin/*" -not -path "*/obj/*"
+          )
+
+          if [ "${#api_files[@]}" -ne 1 ]; then
+            echo "Expected exactly one RaceDayApp_POE.csproj"
+            exit 1
+          fi
+
+          if [ "${#test_files[@]}" -ne 1 ]; then
+            echo "Expected exactly one appTesting.csproj"
+            exit 1
+          fi
+
+          echo "api_project=${api_files[0]}" >> "$GITHUB_OUTPUT"
+          echo "test_project=${test_files[0]}" >> "$GITHUB_OUTPUT"
+
+          echo "API project: ${api_files[0]}"
+          echo "Test project: ${test_files[0]}"
+
+      # Step 4: Restore NuGet dependencies
+      - name: Restore dependencies
+        run: dotnet restore "${{ steps.projects.outputs.test_project }}"
+
+      # Step 5: Build the API and test project
+      - name: Build solution projects
+        run: |
+          dotnet build "${{ steps.projects.outputs.test_project }}" \
+            --configuration Release \
+            --no-restore
+
+      # Step 6: Execute all automated tests
+      - name: Run automated tests
+        run: |
+          dotnet test "${{ steps.projects.outputs.test_project }}" \
+            --configuration Release \
+            --no-build \
+            --no-restore \
+            --logger "trx;LogFileName=part2-tests.trx" \
+            --results-directory "${{ runner.temp }}/test-results"
+
+      # Step 7: Save the test report
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: RaceDay-Part2-Test-Results
+          path: ${{ runner.temp }}/test-results/*.trx
+          if-no-files-found: warn
