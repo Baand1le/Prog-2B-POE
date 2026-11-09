@@ -1,0 +1,31 @@
+@model CategoryFormViewModel
+@{
+    var editing = !string.IsNullOrWhiteSpace(Model.CategoryID);
+    ViewData["Title"] = "Event categories";
+}
+<div class="page-heading"><div><span class="eyebrow eyebrow-dark">EVENT SETUP</span><h1>Categories</h1><p>Manage the entry categories for <strong>@Model.EventName</strong>.</p></div><a class="text-link" asp-action="Events">← Back to events</a></div>
+<div class="two-column-layout">
+    <section class="content-panel"><h2>@(editing ? "Update category" : "Add a category")</h2><p class="panel-intro">Set a category name and the age group it applies to.</p>
+        <form asp-action="Categories" method="post" class="app-form">
+            <input asp-for="EventID" type="hidden" /><input asp-for="CategoryID" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+            <div class="form-field"><label asp-for="CategoryName"></label><input asp-for="CategoryName" class="form-control" placeholder="e.g. 10 km Open" /><span asp-validation-for="CategoryName" class="field-error"></span></div>
+            <div class="form-field"><label asp-for="AgeGroup"></label><input asp-for="AgeGroup" class="form-control" placeholder="e.g. 18–39, Under 18, 40+" /><span asp-validation-for="AgeGroup" class="field-error"></span></div>
+            <button class="btn btn-accent" type="submit">@(editing ? "Save category" : "Add category") <span>↗</span></button>
+            @if (editing) { <a class="text-link d-inline-block ms-3" asp-action="Categories" asp-route-eventID="@Model.EventID">Cancel edit</a> }
+        </form>
+    </section>
+    <section class="content-panel"><h2>Available categories <span class="count-bubble">@Model.Categories.Count</span></h2>
+        @if (Model.Categories.Count == 0) { <div class="empty-inline">No categories added yet.</div> }
+        else
+        {
+            <div class="category-list">
+            @foreach (var category in Model.Categories)
+            {
+                <div class="category-row"><div><strong>@category.CategoryName</strong><span>@category.AgeGroup</span></div><div class="category-actions"><a asp-action="Categories" asp-route-eventID="@Model.EventID" asp-route-categoryID="@category.CategoryID">Edit</a><form asp-action="DeleteCategory" method="post" onsubmit="return confirm('Delete this category? Categories with enrolments cannot be deleted.');"><input type="hidden" name="eventID" value="@Model.EventID" /><input type="hidden" name="categoryID" value="@category.CategoryID" /><button type="submit">Delete</button></form></div></div>
+            }
+            </div>
+        }
+    </section>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
