@@ -1,0 +1,21 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "My profile";
+}
+<div class="page-heading"><div><span class="eyebrow eyebrow-dark">YOUR ACCOUNT</span><h1>My profile</h1><p>Keep your personal details up to date.</p></div><span class="role-chip">@Model.Role</span></div>
+<div class="profile-layout">
+    <aside class="profile-card"><div class="profile-photo-wrap">
+        @if (!string.IsNullOrWhiteSpace(Model.ProfileImageUrl)) { <img src="@Model.ProfileImageUrl" alt="Profile picture" class="profile-photo" /> }
+        else { <div class="profile-photo profile-photo-empty">@(Model.FirstName.FirstOrDefault())</div> }
+    </div><h2>@Model.FirstName @Model.Surname</h2><p>@Model.Email</p><span class="role-chip">@Model.Role</span><div class="profile-note">Your profile picture is stored in the MVC application's <code>wwwroot/uploads/profiles</code> folder.</div></aside>
+    <section class="content-panel"><h2>Personal details</h2><p class="panel-intro">Your details are securely updated through the RaceDay API. Your picture is saved locally by the web application.</p>
+        <form asp-action="Profile" method="post" enctype="multipart/form-data" class="app-form">
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+            <div class="form-row"><div class="form-field"><label asp-for="FirstName"></label><input asp-for="FirstName" class="form-control" /><span asp-validation-for="FirstName" class="field-error"></span></div><div class="form-field"><label asp-for="Surname"></label><input asp-for="Surname" class="form-control" /><span asp-validation-for="Surname" class="field-error"></span></div></div>
+            <div class="form-field"><label asp-for="Email"></label><input asp-for="Email" class="form-control" /><span asp-validation-for="Email" class="field-error"></span></div>
+            <div class="form-field"><label asp-for="ProfilePicture"></label><input asp-for="ProfilePicture" class="form-control" type="file" accept="image/jpeg,image/png,image/webp" /><span asp-validation-for="ProfilePicture" class="field-error"></span><small class="field-hint">Maximum 3 MB. JPG, PNG or WEBP.</small></div>
+            <button class="btn btn-accent" type="submit">Save changes <span>↗</span></button>
+        </form>
+    </section>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
