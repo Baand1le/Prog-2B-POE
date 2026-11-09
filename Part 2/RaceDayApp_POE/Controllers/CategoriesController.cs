@@ -28,13 +28,19 @@ namespace RaceDayApp_POE.Controllers
             Description = "Retrieve all categories available for a specific race event, including category" +
             " names and age groups."
         )]
+        [SwaggerResponse(200, "Event categories retrieved successfully.")]
+        [SwaggerResponse(404, "Event not found.")]
         public async Task<IActionResult> GetCategories(string eventID)
         {
             bool eventExists = await _context.Event
                 .AnyAsync(e => e.eventID == eventID);
 
             if (!eventExists)
-                return NotFound("Event not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The requested event could not be found."
+                });
 
             var categories = await _context.Category
                 .AsNoTracking()
@@ -59,6 +65,11 @@ namespace RaceDayApp_POE.Controllers
             Description = "Allow the Organiser who owns an event to create a new category with a category " +
             "name and age group."
         )]
+        [SwaggerResponse(201, "Category created successfully.")]
+        [SwaggerResponse(400, "Invalid category information.")]
+        [SwaggerResponse(401, "Authentication required.")]
+        [SwaggerResponse(403, "You do not have permission to manage this event.")]
+        [SwaggerResponse(404, "Event not found.")]
         public async Task<IActionResult> CreateCategory(
             string eventID,
             [FromBody] CreateCategoryDTO dto)
@@ -67,7 +78,11 @@ namespace RaceDayApp_POE.Controllers
                 .FindAsync(eventID);
 
             if (raceEvent == null)
-                return NotFound("Event not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The requested event could not be found."
+                });
 
             var userID = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
@@ -104,6 +119,11 @@ namespace RaceDayApp_POE.Controllers
             Summary = "Update an event category",
             Description = "Allow the event's Organiser to update an existing category's name or age group."
         )]
+        [SwaggerResponse(200, "Category updated successfully.")]
+        [SwaggerResponse(400, "Invalid category information.")]
+        [SwaggerResponse(401, "Authentication required.")]
+        [SwaggerResponse(403, "You do not have permission to update this category.")]
+        [SwaggerResponse(404, "Event or category not found.")]
         public async Task<IActionResult> UpdateCategory(
             string eventID,
             string categoryID,
@@ -113,7 +133,11 @@ namespace RaceDayApp_POE.Controllers
                 .FindAsync(eventID);
 
             if (raceEvent == null)
-                return NotFound("Event not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The requested event could not be found."
+                });
 
             var userID = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
@@ -127,14 +151,25 @@ namespace RaceDayApp_POE.Controllers
                     c.eventID == eventID);
 
             if (category == null)
-                return NotFound("Category not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The requested category could not be found."
+                });
 
             category.categoryName = dto.categoryName;
             category.ageGroup = dto.ageGroup;
 
             await _context.SaveChangesAsync();
 
-            return Ok("Category updated successfully.");
+            return Ok(new
+            {
+                message = "Category updated successfully.",
+                category.categoryID,
+                category.eventID,
+                category.categoryName,
+                category.ageGroup
+            });
         }//end of async: UpdateCategory
 
         // DELETE: api/events/{eventID}/categories/{categoryID}
@@ -145,6 +180,11 @@ namespace RaceDayApp_POE.Controllers
             Description = "Allow the event's Organiser to delete a category, provided no Participants are " +
             "enrolled in it."
         )]
+        [SwaggerResponse(200, "Category deleted successfully.")]
+        [SwaggerResponse(401, "Authentication required.")]
+        [SwaggerResponse(403, "You do not have permission to delete this category.")]
+        [SwaggerResponse(404, "Event or category not found.")]
+        [SwaggerResponse(409, "Cannot delete a category containing enrollments.")]
         public async Task<IActionResult> DeleteCategory(
             string eventID,
             string categoryID)
@@ -153,7 +193,11 @@ namespace RaceDayApp_POE.Controllers
                 .FindAsync(eventID);
 
             if (raceEvent == null)
-                return NotFound("Event not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The requested event could not be found."
+                });
 
             var userID = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
@@ -167,19 +211,31 @@ namespace RaceDayApp_POE.Controllers
                     c.eventID == eventID);
 
             if (category == null)
-                return NotFound("Category not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The requested category could not be found."
+                });
 
             bool hasEnrollments = await _context.Enrollment
                 .AnyAsync(e => e.categoryID == categoryID);
 
             if (hasEnrollments)
-                return Conflict(
-                    "Cannot delete a category with enrollments.");
+                return Conflict(new
+                {
+                    status = 409,
+                    message = "Cannot delete this category because Participants are already enrolled in it."
+                });
 
             _context.Category.Remove(category);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new
+            {
+                message = "Category deleted successfully.",
+                categoryID = category.categoryID,
+                eventID = category.eventID
+            });
 
         }//end of async: DeleteCategory
 

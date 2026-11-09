@@ -30,6 +30,12 @@ namespace RaceDayApp_POE.Controllers
             Description = "Allow the event's Organiser to record the finishing time and finishing position of" +
             " an enrolled Participant."
         )]
+        [SwaggerResponse(201, "Race result recorded successfully.")]
+        [SwaggerResponse(400, "Finishing time must be greater than zero.")]
+        [SwaggerResponse(401, "Authentication required.")]
+        [SwaggerResponse(403, "Only the event's Organiser can record results.")]
+        [SwaggerResponse(404, "Enrollment not found.")]
+        [SwaggerResponse(409, "A result already exists for this enrollment.")]
         public async Task<IActionResult> CreateResult(
             string enrollmentID,
             [FromBody] CreateResultDTO dto)
@@ -40,7 +46,11 @@ namespace RaceDayApp_POE.Controllers
                     e.enrollmentID == enrollmentID);
 
             if (enrollment == null)
-                return NotFound("Enrollment not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The enrollment could not be found. Please verify the enrollment ID."
+                });
 
             var userID = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
@@ -49,15 +59,21 @@ namespace RaceDayApp_POE.Controllers
                 return Forbid();
 
             if (dto.finishTime <= TimeSpan.Zero)
-                return BadRequest(
-                    "Finish time must be greater than zero.");
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = "Invalid finishing time. The finish time must be greater than zero."
+                });
 
             bool resultExists = await _context.Result
                 .AnyAsync(r => r.enrollmentID == enrollmentID);
 
             if (resultExists)
-                return Conflict(
-                    "A result already exists for this enrollment.");
+                return Conflict(new
+                {
+                    status = 409,
+                    message = "A race result has already been recorded for this enrollment. Use the update endpoint to modify it."
+                });
 
             var result = new Results
             {
@@ -89,6 +105,11 @@ namespace RaceDayApp_POE.Controllers
             Description = "Allow the event's Organiser to correct or update a previously recorded finishing time or " +
             "position."
         )]
+        [SwaggerResponse(200, "Race result updated successfully.")]
+        [SwaggerResponse(400, "Invalid finishing time.")]
+        [SwaggerResponse(401, "Authentication required.")]
+        [SwaggerResponse(403, "You do not have permission to update this result.")]
+        [SwaggerResponse(404, "Enrollment or result not found.")]
         public async Task<IActionResult> UpdateResult(
             string enrollmentID,
             [FromBody] CreateResultDTO dto)
@@ -99,7 +120,11 @@ namespace RaceDayApp_POE.Controllers
                     e.enrollmentID == enrollmentID);
 
             if (enrollment == null)
-                return NotFound("Enrollment not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The enrollment could not be found. Please verify the enrollment ID."
+                });
 
             var userID = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
@@ -108,22 +133,36 @@ namespace RaceDayApp_POE.Controllers
                 return Forbid();
 
             if (dto.finishTime <= TimeSpan.Zero)
-                return BadRequest(
-                    "Finish time must be greater than zero.");
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = "Invalid finishing time. The finish time must be greater than zero."
+                });
 
             var result = await _context.Result
                 .FirstOrDefaultAsync(r =>
                     r.enrollmentID == enrollmentID);
 
             if (result == null)
-                return NotFound("Result not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "No recorded result was found for this enrollment."
+                });
 
             result.finishTime = dto.finishTime;
             result.finishPosition = dto.finishPosition;
 
             await _context.SaveChangesAsync();
 
-            return Ok("Result updated successfully.");
+            return Ok(new
+            {
+                message = "Race result updated successfully.",
+                result.resultID,
+                result.enrollmentID,
+                result.finishTime,
+                result.finishPosition
+            });
         }
 
         // GET: api/results/mine
@@ -134,6 +173,9 @@ namespace RaceDayApp_POE.Controllers
             Description = "Retrieve the logged-in Participant's race history, including finishing times," +
             " positions and total recorded finishers."
         )]
+        [SwaggerResponse(200, "Your race results retrieved successfully.")]
+        [SwaggerResponse(401, "Authentication required.")]
+        [SwaggerResponse(403, "Only Participants can view their personal results.")]
         public async Task<IActionResult> GetMyResults()
         {
             var participantID = User.FindFirstValue(
@@ -172,6 +214,10 @@ namespace RaceDayApp_POE.Controllers
             Description = "Allow the event's Organiser to view the recorded finishing times and positions" +
             " of Participants in that event."
         )]
+        [SwaggerResponse(200, "Event results retrieved successfully.")]
+        [SwaggerResponse(401, "Authentication required.")]
+        [SwaggerResponse(403, "Only the event's Organiser can view these results.")]
+        [SwaggerResponse(404, "Event not found.")]
         public async Task<IActionResult> GetEventResults(
             string eventID)
         {
@@ -179,7 +225,11 @@ namespace RaceDayApp_POE.Controllers
                 .FindAsync(eventID);
 
             if (raceEvent == null)
-                return NotFound("Event not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The requested event could not be found."
+                });
 
             var userID = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);

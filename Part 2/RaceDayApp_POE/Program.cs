@@ -39,18 +39,28 @@ builder.Services
         options.SlidingExpiration = true;
 
         //return api status codes intead of login page redirects
-        options.Events.OnRedirectToLogin = context =>
+        options.Events.OnRedirectToLogin = async context =>
         {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.StatusCode =
+                StatusCodes.Status401Unauthorized;
 
-            return Task.CompletedTask;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                status = 401,
+                message = "Authentication required. Please log in to continue."
+            });
         };
 
-        options.Events.OnRedirectToAccessDenied = context =>
+        options.Events.OnRedirectToAccessDenied = async context =>
         {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.StatusCode =
+                StatusCodes.Status403Forbidden;
 
-            return Task.CompletedTask;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                status = 403,
+                message = "Access denied. You do not have permission to perform this action."
+            });
         };
 
     });

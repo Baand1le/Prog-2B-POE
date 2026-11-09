@@ -28,6 +28,7 @@ namespace RaceDayApp_POE.Controllers
             Description = "Retrieve a list of all available race events,including thier dates, locations, distances " +
             "and event types."
             )]
+        [SwaggerResponse(200, "Race events retrieved successfully.")]
         public async Task<IActionResult> GetEvents()
         {
             var events = await _context.Event
@@ -55,6 +56,8 @@ namespace RaceDayApp_POE.Controllers
         Summary = "View a specific race event",
         Description = "Retrieve the details of a race event using its unique event ID."
         )]
+        [SwaggerResponse(200, "Event retrieved successfully.")]
+        [SwaggerResponse(404, "No event was found with the provided ID.")]
         public async Task<IActionResult> GetEvent(string eventID)
         {
             var raceEvent = await _context.Event
@@ -74,7 +77,13 @@ namespace RaceDayApp_POE.Controllers
                 .FirstOrDefaultAsync();
 
             if (raceEvent == null)
-                return NotFound(raceEvent);
+            {
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The requested event could not be found."
+                });
+            }
             return Ok(raceEvent);
 
         }//end of async GetEvent
@@ -87,6 +96,10 @@ namespace RaceDayApp_POE.Controllers
         Description = "Allow an authenticated Organiser to create a race event. The event is automatically " +
             "linked to the logged-in Organiser."
         )]
+        [SwaggerResponse(201, "Event created successfully.")]
+        [SwaggerResponse(400, "Invalid event information supplied.")]
+        [SwaggerResponse(401, "You must be logged in to create an event.")]
+        [SwaggerResponse(403, "Access denied. Only Organisers can create events.")]
         public async Task<IActionResult> CreateEvent([FromBody] EventDTO dto)
         {
             var organizerID =
@@ -112,8 +125,8 @@ namespace RaceDayApp_POE.Controllers
                 new { eventID = raceEvent.eventID },
                 new
                 {
-                    raceEvent.eventID,
-                    raceEvent.organiserID,
+                    message = "Event created successfully",
+                    eventID = raceEvent.eventID,
                     raceEvent.Name,
                     raceEvent.Description,
                     raceEvent.Date,
@@ -130,13 +143,24 @@ namespace RaceDayApp_POE.Controllers
         Summary = "Update an existing race event",
         Description = "Allow an Organiser to modify the details of a race event they own."
         )]
+        [SwaggerResponse(200, "Event updated successfully.")]
+        [SwaggerResponse(400, "The supplied event details are invalid.")]
+        [SwaggerResponse(401, "Authentication is required.")]
+        [SwaggerResponse(403, "Access denied. You cannot update this event.")]
+        [SwaggerResponse(404, "The requested event could not be found.")]
         public async Task<IActionResult> UpdateEvent(
-            string eventID, EventDTO dto)
+    string eventID, [FromBody] EventDTO dto)
         {
             var raceEvent = await _context.Event.FindAsync(eventID);
 
             if (raceEvent == null)
-                return NotFound("Event not found.");
+            {
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The event you are trying to update does not exist."
+                });
+            }
 
             var userID =
                 User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -153,7 +177,17 @@ namespace RaceDayApp_POE.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok("Event updated successfully.");
+            return Ok(new
+            {
+                message = "Event updated successfully.",
+                eventID = raceEvent.eventID,
+                raceEvent.Name,
+                raceEvent.Description,
+                raceEvent.Date,
+                raceEvent.Location,
+                raceEvent.Distance,
+                raceEvent.eventType
+            });
         }//end of UpdateEvent
 
         //Delete: api/events/{eventID}
@@ -164,12 +198,23 @@ namespace RaceDayApp_POE.Controllers
         Description = "Allow an Organiser to delete an event they own, provided it has no associated categories" +
             " or enrollments."
         )]
+        [SwaggerResponse(200, "Event deleted successfully.")]
+        [SwaggerResponse(401, "Authentication is required.")]
+        [SwaggerResponse(403, "Access denied. You cannot delete this event.")]
+        [SwaggerResponse(404, "The requested event could not be found.")]
+        [SwaggerResponse(409, "The event has categories or enrollments and cannot be deleted.")]
         public async Task<IActionResult> DeleteEvent(string eventID)
         {
             var raceEvent = await _context.Event.FindAsync(eventID);
 
             if (raceEvent == null)
-                return NotFound("Event Not found");
+            {
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The event you are trying to delete does not exist."
+                });
+            }
 
             var userID =
                 User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -184,14 +229,23 @@ namespace RaceDayApp_POE.Controllers
                 .AnyAsync(e => e.eventID == eventID);
 
             if (hasCategories || hasEnrollments)
-                return Conflict(
-                    "Cannot delete and with categories or enrollments.");
+            {
+                return Conflict(new
+                {
+                    status = 409,
+                    message = "Cannot delete this event because it has existing categories or enrollments."
+                });
+            }
 
             _context.Event.Remove(raceEvent);
+
             await _context.SaveChangesAsync();
 
-            return NoContent();
-
+            return Ok(new
+            {
+                message = "Event deleted successfully.",
+                eventID
+            });
         }//end of DeleteEvent
 
     }//end of class: EventsController

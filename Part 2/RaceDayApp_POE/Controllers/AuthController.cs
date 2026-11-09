@@ -30,6 +30,9 @@ namespace RaceDayApp_POE.Controllers
             Description = "Create a new account by providing your personal details, email address, password and" +
             "user role. The roles to choose from are Organiser and Participant"
             )]
+        [SwaggerResponse(200, "Account registered successfully.")]
+        [SwaggerResponse(400, "Invalid registration details or user role.")]
+        [SwaggerResponse(409, "An account with this email already exists.")]
         public async Task<IActionResult> Register( [FromBody] RegisterDTO dto)
         {
             // Check whether the email is already registered
@@ -37,7 +40,15 @@ namespace RaceDayApp_POE.Controllers
                 .AnyAsync(u => u.Email == dto.email);
 
             if (emailExists)
-                return Conflict("Email is already registered.");
+            {
+                return Conflict(new
+                {
+                    status = 409,
+                    message = "Registration failed. This email address is already registered."
+                });
+            }
+
+
 
             // Verify that the selected role exists
             var role = await _context.UserRole
@@ -47,7 +58,11 @@ namespace RaceDayApp_POE.Controllers
                 (role.roleType != "Organiser" &&
                  role.roleType != "Participant"))
             {
-                return BadRequest("Invalid user role.");
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = "Invalid role. Please select Organiser or Participant."
+                });
             }
 
             // Hash the password using BCrypt
@@ -85,6 +100,9 @@ namespace RaceDayApp_POE.Controllers
             Description = "Enter your registered email address and password to authenticate and start" +
             " a secure session."
             )]
+        [SwaggerResponse(200, "Login successful.")]
+        [SwaggerResponse(400, "Invalid login request.")]
+        [SwaggerResponse(401, "Invalid email or password.")]
         public async Task<IActionResult> Login( [FromBody] LoginDTO dto)
         {
             // Find the user and their role
@@ -98,8 +116,11 @@ namespace RaceDayApp_POE.Controllers
                 !BCrypt.Net.BCrypt.Verify(
                     dto.password, user.PasswordHash))
             {
-                return Unauthorized(
-                    "Invalid email or password.");
+                return Unauthorized(new
+                {
+                    status = 401,
+                    message = "Login failed. Invalid email address or password."
+                });
             }
 
             // Create claims containing user identity and role
@@ -141,6 +162,8 @@ namespace RaceDayApp_POE.Controllers
             Summary = "Logout of RaceDay",
             Description = "End your current authenticated session and sign out securely."
             )]
+        [SwaggerResponse(200, "Logout successful.")]
+        [SwaggerResponse(401, "Authentication required.")]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(
@@ -160,6 +183,8 @@ namespace RaceDayApp_POE.Controllers
             Description = "Retrieve the user ID, email address and role associated with your current authenticated" +
             "session"
             )]
+        [SwaggerResponse(200, "Authentication details retrieved successfully.")]
+        [SwaggerResponse(401, "Authentication required.")]
         public IActionResult GetCurrentUser()
         {
             return Ok(new

@@ -29,6 +29,12 @@ namespace RaceDayApp_POE.Controllers
             Description = "Allow an authenticated Participant to enroll in an upcoming event by selecting a " +
             "category. The Participant's identity is obtained automatically from their login session."
         )]
+        [SwaggerResponse(201, "Successfully enrolled in the event.")]
+        [SwaggerResponse(400, "Enrollment is closed because the event has started.")]
+        [SwaggerResponse(401, "Authentication required.")]
+        [SwaggerResponse(403, "Only Participants can enroll in events.")]
+        [SwaggerResponse(404, "Selected category not found.")]
+        [SwaggerResponse(409, "You are already enrolled in this event.")]
         public async Task<IActionResult> CreateEnrollment(
             [FromBody] CreateEnrollmentDTO dto)
         {
@@ -41,12 +47,19 @@ namespace RaceDayApp_POE.Controllers
                     c.categoryID == dto.categoryID);
 
             if (category == null)
-                return NotFound("Category not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "Enrollment failed. The selected category does not exist."
+                });
 
             // Check that the event is still upcoming
             if (category.Event.Date <= DateTime.Now)
-                return BadRequest(
-                    "Cannot enroll in an event that has already started.");
+                return BadRequest(new
+                {
+                    status = 400,
+                    message = "Enrollment failed. This event has already started, so registration is closed."
+                });
 
             // Prevent duplicate enrollment in the same event
             bool alreadyEnrolled = await _context.Enrollment
@@ -55,8 +68,11 @@ namespace RaceDayApp_POE.Controllers
                     e.eventID == category.eventID);
 
             if (alreadyEnrolled)
-                return Conflict(
-                    "You are already enrolled in this event.");
+                return Conflict(new
+                {
+                    status = 409,
+                    message = "Enrollment failed. You are already registered for this event."
+                });
 
             var enrollment = new Enrollments
             {
@@ -89,6 +105,9 @@ namespace RaceDayApp_POE.Controllers
             Summary = "View your race enrollments",
             Description = "Retrieve all race events and categories in which the logged-in Participant is enrolled."
         )]
+        [SwaggerResponse(200, "Your enrollments retrieved successfully.")]
+        [SwaggerResponse(401, "Authentication required.")]
+        [SwaggerResponse(403, "Only Participants can access this endpoint.")]
         public async Task<IActionResult> GetMyEnrollments()
         {
             var participantID = User.FindFirstValue(
@@ -121,6 +140,11 @@ namespace RaceDayApp_POE.Controllers
             Description = "Allow the event's Organiser to retrieve a list of Participants registered for" +
             " that event."
         )]
+        // GetEventEnrollments()
+        [SwaggerResponse(200, "Event enrollments retrieved successfully.")]
+        [SwaggerResponse(401, "Authentication required.")]
+        [SwaggerResponse(403, "Only the event's Organiser can view its enrollments.")]
+        [SwaggerResponse(404, "Event not found.")]
         public async Task<IActionResult> GetEventEnrollments(
             string eventID)
         {
@@ -128,7 +152,11 @@ namespace RaceDayApp_POE.Controllers
                 .FindAsync(eventID);
 
             if (raceEvent == null)
-                return NotFound("Event not found.");
+                return NotFound(new
+                {
+                    status = 404,
+                    message = "The event's enrollments could not be retrieved because the event does not exist."
+                });
 
             var userID = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
