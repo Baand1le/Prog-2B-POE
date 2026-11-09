@@ -1,0 +1,19 @@
+@model EventFormViewModel
+@{
+    var isEdit = !string.IsNullOrWhiteSpace(Model.EventID);
+    ViewData["Title"] = isEdit ? "Edit event" : "Create event";
+}
+<div class="page-heading"><div><span class="eyebrow eyebrow-dark">@(isEdit ? "UPDATE YOUR RACE" : "BUILD YOUR NEXT EVENT")</span><h1>@(isEdit ? "Edit event" : "Create an event")</h1><p>Give participants the details they need to get to the start line.</p></div><a class="text-link" asp-action="Events">← Back to events</a></div>
+<div class="content-panel form-panel">
+    <form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-eventID="@Model.EventID" method="post" enctype="multipart/form-data" class="app-form">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <div class="form-field"><label asp-for="Name"></label><input asp-for="Name" class="form-control" placeholder="e.g. Johannesburg City Run" /><span asp-validation-for="Name" class="field-error"></span></div>
+        <div class="form-field"><label asp-for="Description"></label><textarea asp-for="Description" class="form-control" rows="4" placeholder="Tell runners what makes this event special..."></textarea><span asp-validation-for="Description" class="field-error"></span></div>
+        <div class="form-row"><div class="form-field"><label asp-for="Date"></label><input asp-for="Date" asp-format="{0:yyyy-MM-ddTHH:mm}" type="datetime-local" class="form-control" /><span asp-validation-for="Date" class="field-error"></span></div><div class="form-field"><label asp-for="EventType"></label><select asp-for="EventType" class="form-select"><option>Road race</option><option>Trail run</option><option>Fun run</option><option>Marathon</option><option>Half marathon</option><option>Cross-country</option><option>Other</option></select><span asp-validation-for="EventType" class="field-error"></span></div></div>
+        <div class="form-row"><div class="form-field"><label asp-for="Location"></label><input asp-for="Location" class="form-control" placeholder="City, venue or starting point" /><span asp-validation-for="Location" class="field-error"></span></div><div class="form-field"><label asp-for="Distance"></label><input asp-for="Distance" class="form-control" placeholder="e.g. 5 km, 10 km, 21.1 km" /><span asp-validation-for="Distance" class="field-error"></span></div></div>
+        @if (!string.IsNullOrWhiteSpace(Model.ExistingBannerUrl)) { <div class="current-banner"><img src="@Model.ExistingBannerUrl" alt="Current event banner" /><span>Current banner</span></div> }
+        <div class="form-field"><label asp-for="BannerImage"></label><input asp-for="BannerImage" type="file" accept="image/jpeg,image/png,image/webp" class="form-control" /><span asp-validation-for="BannerImage" class="field-error"></span><small class="field-hint">Optional. JPG, PNG or WEBP, maximum 3 MB. Stored under wwwroot/uploads/events.</small></div>
+        <div class="form-actions"><button class="btn btn-accent" type="submit">@(isEdit ? "Save event changes" : "Create event") <span>↗</span></button><a class="btn btn-light" asp-action="Events">Cancel</a></div>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
