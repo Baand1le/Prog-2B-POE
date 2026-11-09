@@ -1,0 +1,37 @@
+@model OrganiserResultsViewModel
+@{
+    ViewData["Title"] = "Race results";
+}
+<div class="page-heading"><div><span class="eyebrow eyebrow-dark">FINISH LINE</span><h1>Race results</h1><p>Record and publish finishing times for <strong>@Model.Event.Name</strong>.</p></div><a class="text-link" asp-action="Events">← Back to events</a></div>
+@if (Model.Event.Date > DateTime.Now) { <div class="alert alert-warning app-alert">This event is still upcoming. Results can be entered after the race has taken place.</div> }
+<div class="results-list">
+@foreach (var row in Model.Rows)
+{
+    <article class="result-entry-card">
+        <div class="result-person"><span class="table-avatar">@row.Enrollment.FirstName.FirstOrDefault()</span><div><strong>@row.Enrollment.FirstName @row.Enrollment.Surname</strong><span>@row.Enrollment.CategoryName</span></div></div>
+        @if (row.Result != null)
+        {
+            <div class="existing-result"><span class="result-position">#@row.Result.FinishPosition</span><span>@row.Result.FinishTime.ToString()</span><span class="status-chip status-complete">Published</span></div>
+        }
+        else
+        {
+            <span class="status-chip status-muted">No result yet</span>
+        }
+        @if (Model.Event.Date <= DateTime.Now)
+        {
+            <form asp-action="SaveResult" method="post" class="result-form">
+                <input type="hidden" name="eventID" value="@Model.Event.EventID" />
+                <input type="hidden" name="EnrollmentID" value="@row.Enrollment.EnrollmentID" />
+                <div class="form-field"><label>Finish time</label><input class="form-control" name="FinishTime" type="text" placeholder="00:35:42" value="@(row.Result?.FinishTime.ToString() ?? "")" required /></div>
+                <div class="form-field"><label>Position</label><input class="form-control" name="FinishPosition" type="number" min="1" value="@(row.Result?.FinishPosition ?? 1)" required /></div>
+                <button class="btn btn-accent btn-sm" type="submit">@(row.Result == null ? "Publish" : "Update")</button>
+            </form>
+        }
+        else
+        {
+            <span class="field-hint">Result entry opens after the event.</span>
+        }
+    </article>
+}
+</div>
+@if (Model.Rows.Count == 0) { <div class="empty-state"><h3>No enrolled participants</h3><p>Results will be available after participants register for this event.</p></div> }
