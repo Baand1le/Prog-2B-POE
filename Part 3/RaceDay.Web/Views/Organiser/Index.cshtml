@@ -1,0 +1,30 @@
+@model OrganiserDashboardViewModel
+@{
+    ViewData["Title"] = "Organiser dashboard";
+}
+<div class="page-heading"><div><span class="eyebrow eyebrow-dark">ORGANISER SPACE</span><h1>Good day, @(Context.Session.GetString("UserName")?.Split(' ').FirstOrDefault()).</h1><p>Here's what's happening across your race events.</p></div><a class="btn btn-accent" asp-action="Create">Create event <span>↗</span></a></div>
+<div class="stats-grid">
+    <div class="stat-card"><span class="stat-icon">▦</span><span class="stat-label">Total events</span><strong>@Model.TotalEvents</strong><small>Events you've created</small></div>
+    <div class="stat-card"><span class="stat-icon">♧</span><span class="stat-label">Total participants</span><strong>@Model.TotalEnrollments</strong><small>Across all your events</small></div>
+    <div class="stat-card stat-card-accent"><span class="stat-icon">◷</span><span class="stat-label">Upcoming events</span><strong>@Model.UpcomingEvents</strong><small>Still ahead on the calendar</small></div>
+</div>
+<div class="section-heading section-heading-tight"><div><span class="eyebrow eyebrow-dark">YOUR CALENDAR</span><h2>Events at a glance</h2></div><a class="text-link" asp-action="Events">Manage all events <span>↗</span></a></div>
+@if (Model.Events.Count == 0)
+{
+    <div class="empty-state"><div class="empty-icon">＋</div><h3>Your first event starts here</h3><p>Create a race and invite participants to join.</p><a class="btn btn-accent" asp-action="Create">Create your first event</a></div>
+}
+else
+{
+    <div class="dashboard-event-list">
+    @foreach (var item in Model.Events)
+    {
+        <article class="dashboard-event-row">
+            <div class="dashboard-event-date"><strong>@item.Event.Date.ToString("dd")</strong><span>@item.Event.Date.ToString("MMM")</span></div>
+            <div class="dashboard-event-main"><span class="event-meta">@item.Event.Location · @item.Event.Distance</span><h3>@item.Event.Name</h3><span class="status-chip @(item.Event.Date >= DateTime.Now ? "status-upcoming" : "status-muted")">@(item.Event.Date >= DateTime.Now ? "Upcoming" : "Past event")</span></div>
+            <div class="dashboard-event-metric"><strong>@item.EnrollmentCount</strong><span>Participants</span></div>
+            <div class="dashboard-event-metric"><strong>@item.ResultCount</strong><span>Results</span></div>
+            <div class="dashboard-event-actions"><a asp-action="Enrollments" asp-route-eventID="@item.Event.EventID" title="View participants">People</a><a asp-action="Results" asp-route-eventID="@item.Event.EventID" title="Manage results">Results</a></div>
+        </article>
+    }
+    </div>
+}
