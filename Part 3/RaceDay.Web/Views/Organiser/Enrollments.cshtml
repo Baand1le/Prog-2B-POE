@@ -1,0 +1,19 @@
+@model OrganiserEnrollmentsViewModel
+@{
+    ViewData["Title"] = "Participants";
+}
+<div class="page-heading"><div><span class="eyebrow eyebrow-dark">RACE ROSTER</span><h1>Participants</h1><p>@Model.Event.Name · @Model.Event.Date.ToString("dd MMM yyyy")</p></div><a class="text-link" asp-action="Events">← Back to events</a></div>
+<div class="table-panel">
+    <div class="table-panel-heading"><div><h2>Registered runners</h2><p>Everyone enrolled in this event and their selected category.</p></div><span class="count-bubble">@Model.Enrollments.Count</span></div>
+    @if (Model.Enrollments.Count == 0) { <div class="empty-state compact"><h3>No participants yet</h3><p>Participant registrations will appear here.</p></div> }
+    else
+    {
+        <div class="table-responsive"><table class="table app-table"><thead><tr><th>Participant</th><th>Category</th><th>Enrolled</th><th>Result</th></tr></thead><tbody>
+        @foreach (var item in Model.Enrollments)
+        {
+            <tr><td><div class="table-person"><span class="table-avatar">@item.FirstName.FirstOrDefault()</span><strong>@item.FirstName @item.Surname</strong></div></td><td>@item.CategoryName</td><td>@item.EnrollmentDate.ToString("dd MMM yyyy")</td><td>@if (Model.ResultEnrollmentIDs.Contains(item.EnrollmentID)) { <span class="status-chip status-complete">Published</span> } else { <span class="status-chip status-muted">Pending</span> }</td></tr>
+        }
+        </tbody></table></div>
+    }
+    <div class="table-panel-footer"><a class="btn btn-accent" asp-action="Results" asp-route-eventID="@Model.Event.EventID">Manage race results <span>↗</span></a></div>
+</div>
