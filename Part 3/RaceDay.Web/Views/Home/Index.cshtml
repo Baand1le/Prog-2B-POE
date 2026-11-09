@@ -1,8 +1,78 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model List<ApiEvent>
+@{
+    ViewData["Title"] = "Find your next finish line";
 }
+<section class="hero-section">
+    <div class="hero-copy">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> YOUR NEXT CHAPTER STARTS HERE</span>
+        <h1>Find your pace.<br /><span>Own your race.</span></h1>
+        <p class="hero-lead">Discover races, bring people together and celebrate every finish line. Your next great race is closer than you think.</p>
+        <div class="hero-actions">
+            @if (Context.Session.GetString("UserRole") == "Organiser")
+            {
+                <a class="btn btn-accent btn-lg" asp-controller="Organiser" asp-action="Create">Create an event <span>↗</span></a>
+            }
+            else if (Context.Session.GetString("UserRole") == "Participant")
+            {
+                <a class="btn btn-accent btn-lg" asp-controller="Participant" asp-action="Index">Explore races <span>↗</span></a>
+            }
+            else
+            {
+                <a class="btn btn-accent btn-lg" asp-controller="Account" asp-action="Register">Get started <span>↗</span></a>
+                <a class="btn btn-quiet-light btn-lg" asp-controller="Account" asp-action="Login">I have an account</a>
+            }
+        </div>
+        <div class="hero-proof"><span class="proof-icon">✦</span><span>One community. Countless finish lines.</span></div>
+    </div>
+    <div class="hero-art" aria-label="Running track illustration">
+        <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+        <div class="hero-sun"></div>
+        <div class="hero-runner">🏃</div>
+        <div class="hero-stamp"><span>READY</span><strong>SET</strong><em>RACE.</em></div>
+        <div class="hero-mini-card"><span class="mini-label">THE ONLY LIMIT</span><strong>IS THE<br />START LINE.</strong></div>
+    </div>
+</section>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="section-block">
+    <div class="section-heading">
+        <div><span class="eyebrow eyebrow-dark">ON THE HORIZON</span><h2>Upcoming races</h2><p>Pick a challenge and make it yours.</p></div>
+        @if (Context.Session.GetString("UserRole") == "Participant")
+        {
+            <a class="text-link" asp-controller="Participant" asp-action="Index">View all races <span>↗</span></a>
+        }
+    </div>
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state"><div class="empty-icon">◎</div><h3>New races are on the way</h3><p>Check back soon for upcoming RaceDay events.</p></div>
+    }
+    else
+    {
+        <div class="event-grid">
+            @foreach (var raceEvent in Model)
+            {
+                <article class="event-card">
+                    <div class="event-card-art"><span class="event-type-pill">@raceEvent.EventType</span><span class="event-card-symbol">↗</span><div class="event-card-date"><strong>@raceEvent.Date.ToString("dd")</strong><span>@raceEvent.Date.ToString("MMM")</span></div></div>
+                    <div class="event-card-body"><div class="event-meta">@raceEvent.Location <span>·</span> @raceEvent.Distance</div><h3>@raceEvent.Name</h3><p>@(raceEvent.Description.Length > 105 ? raceEvent.Description[..105] + "…" : raceEvent.Description)</p>
+                        @if (Context.Session.GetString("UserRole") == "Participant")
+                        {
+                            <a class="card-link" asp-controller="Participant" asp-action="Details" asp-route-eventID="@raceEvent.EventID">View race <span>→</span></a>
+                        }
+                        else
+                        {
+                            <a class="card-link" asp-controller="Account" asp-action="Login">Sign in to take part <span>→</span></a>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+    @if (ViewBag.ApiMessage != null)
+    {
+        <p class="small text-muted mt-3">Race listings are temporarily unavailable: @ViewBag.ApiMessage</p>
+    }
+</section>
+
+<section class="split-promo">
+    <div><span class="eyebrow eyebrow-dark">MORE THAN A RACE</span><h2>Make every kilometre<br />mean something.</h2><p>Whether you're organising the next big event or chasing a new personal best, RaceDay keeps your race journey in one place.</p></div>
+    <div class="promo-stat"><strong>01</strong><span>Set your goal</span><strong>02</strong><span>Show up and race</span><strong>03</strong><span>Own your finish</span></div>
+</section>
