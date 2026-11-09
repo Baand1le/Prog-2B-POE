@@ -1,47 +1,96 @@
-﻿<!DOCTYPE html>
+@inject LocalImageService Images
+@{
+    var signedIn = !string.IsNullOrWhiteSpace(Context.Session.GetString("UserId"));
+    var role = Context.Session.GetString("UserRole") ?? string.Empty;
+    var userId = Context.Session.GetString("UserId") ?? string.Empty;
+    var userName = Context.Session.GetString("UserName") ?? "Runner";
+    var avatar = signedIn ? Images.Find("profiles", userId) : null;
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - RaceDay.Web</title>
+    <meta name="theme-color" content="#101d35" />
+    <title>@ViewData["Title"] · RaceDay</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/RaceDay.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">RaceDay.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-lg navbar-dark container py-3">
+            <a class="navbar-brand brand-lockup" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark">R</span><span>RACEDAY<span class="brand-period">.</span></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                    <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
+                    @if (signedIn && role == "Organiser")
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Index">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Organiser" asp-action="Events">My events</a></li>
+                    }
+                    @if (signedIn && role == "Participant")
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Participant" asp-action="Index">Find races</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Participant" asp-action="MyEnrollments">My races</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Participant" asp-action="MyResults">My results</a></li>
+                    }
+                    @if (signedIn)
+                    {
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link user-menu dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @if (!string.IsNullOrWhiteSpace(avatar))
+                                {
+                                    <img class="nav-avatar" src="@avatar" alt="Profile" />
+                                }
+                                else
+                                {
+                                    <span class="nav-avatar avatar-placeholder">@userName.FirstOrDefault()</span>
+                                }
+                                <span>@userName</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">My profile</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><form asp-controller="Account" asp-action="Logout" method="post"><button class="dropdown-item text-danger" type="submit">Sign out</button></form></li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+                    }
+                    else
+                    {
+                        <li class="nav-item ms-lg-2"><a class="nav-link" asp-controller="Account" asp-action="Login">Sign in</a></li>
+                        <li class="nav-item"><a class="btn btn-nav-cta" asp-controller="Account" asp-action="Register">Create account <span aria-hidden="true">↗</span></a></li>
+                    }
+                </ul>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - RaceDay.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main class="main-content">
+        <div class="container page-container">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success app-alert" role="alert">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger app-alert" role="alert">@TempData["Error"]</div>
+            }
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container d-flex flex-column flex-md-row justify-content-between gap-2">
+            <span><strong>RACEDAY.</strong> Every finish line starts somewhere.</span>
+            <span>© @DateTime.Now.Year RaceDay · Built for the running community</span>
         </div>
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

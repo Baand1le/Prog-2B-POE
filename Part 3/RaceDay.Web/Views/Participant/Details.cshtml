@@ -1,0 +1,29 @@
+@model EventDetailsViewModel
+@{
+    ViewData["Title"] = Model.Event.Name;
+}
+<div class="detail-back"><a class="text-link" asp-action="Index">← Back to races</a></div>
+<section class="event-detail-hero">
+    @if (!string.IsNullOrWhiteSpace(Model.BannerUrl)) { <div class="event-detail-image" style="background-image:url('@Model.BannerUrl')"></div> }
+    else { <div class="event-detail-image event-detail-placeholder"><span>@Model.Event.EventType</span><strong>@Model.Event.Date.ToString("dd MMM")</strong></div> }
+    <div class="event-detail-copy"><span class="eyebrow eyebrow-dark">@Model.Event.EventType · @Model.Event.Distance</span><h1>@Model.Event.Name</h1><div class="detail-facts"><span>⌖ @Model.Event.Location</span><span>◷ @Model.Event.Date.ToString("dddd, dd MMMM yyyy · HH:mm")</span></div><p>@Model.Event.Description</p></div>
+</section>
+<div class="two-column-layout detail-columns">
+    <section class="content-panel"><span class="eyebrow eyebrow-dark">CHOOSE YOUR ENTRY</span><h2>Available categories</h2><p class="panel-intro">Select the category that best matches your race entry.</p>
+        @if (Model.Categories.Count == 0) { <div class="empty-inline">The organiser has not added categories yet. Check back later.</div> }
+        else
+        {
+            <form asp-action="Enroll" method="post" class="app-form"><input type="hidden" name="eventID" value="@Model.Event.EventID" />
+                <div class="category-choice-list">
+                @foreach (var category in Model.Categories)
+                {
+                    <label class="category-choice"><input type="radio" name="categoryID" value="@category.CategoryID" required /><span class="category-choice-copy"><strong>@category.CategoryName</strong><small>@category.AgeGroup</small></span><span class="choice-arrow">→</span></label>
+                }
+                </div>
+                @if (Model.Event.Date > DateTime.Now) { <button class="btn btn-accent btn-lg w-100" type="submit">Confirm my enrolment <span>↗</span></button> }
+                else { <div class="alert alert-secondary">Registration for this event is closed.</div> }
+            </form>
+        }
+    </section>
+    <aside class="detail-side-card"><span class="eyebrow eyebrow-dark">RACE DETAILS</span><div class="detail-side-line"><span>Date</span><strong>@Model.Event.Date.ToString("dd MMM yyyy")</strong></div><div class="detail-side-line"><span>Start time</span><strong>@Model.Event.Date.ToString("HH:mm")</strong></div><div class="detail-side-line"><span>Location</span><strong>@Model.Event.Location</strong></div><div class="detail-side-line"><span>Distance</span><strong>@Model.Event.Distance</strong></div><div class="detail-side-line"><span>Event type</span><strong>@Model.Event.EventType</strong></div><p class="detail-side-note">Your enrolment is saved immediately through the RaceDay API.</p></aside>
+</div>

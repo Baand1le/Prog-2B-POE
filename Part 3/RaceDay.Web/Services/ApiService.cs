@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -6,6 +6,11 @@ using RaceDay.Web.ViewModels;
 
 namespace RaceDay.Web.Services;
 
+/// <summary>
+/// Makes server-to-server requests to the Part 2 API. The API's authentication
+/// cookie is stored in the current MVC session and forwarded per request.
+/// No API cookie is stored in browser JavaScript or shared between users.
+/// </summary>
 public class ApiService
 {
     private const string ApiCookieName = "RaceDay.Auth";

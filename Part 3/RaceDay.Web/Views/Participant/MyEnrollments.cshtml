@@ -1,0 +1,18 @@
+@model ParticipantEnrollmentsViewModel
+@{
+    ViewData["Title"] = "My races";
+}
+<div class="page-heading"><div><span class="eyebrow eyebrow-dark">YOUR RACE JOURNEY</span><h1>My races</h1><p>All the events you've signed up for, in one place.</p></div><a class="btn btn-accent" asp-action="Index">Find a race <span>↗</span></a></div>
+@if (Model.Enrollments.Count == 0)
+{
+    <div class="empty-state"><div class="empty-icon">◎</div><h3>Your race calendar is waiting</h3><p>Once you enrol in an event, it will show up here.</p><a class="btn btn-accent" asp-action="Index">Explore upcoming races</a></div>
+}
+else
+{
+    <div class="table-panel"><div class="table-responsive"><table class="table app-table"><thead><tr><th>Event</th><th>Date & location</th><th>Category</th><th>Status</th><th></th></tr></thead><tbody>
+    @foreach (var row in Model.Enrollments)
+    {
+        <tr><td><strong>@row.Enrollment.EventName</strong><div class="table-subtext">Enrolled @row.Enrollment.EnrollmentDate.ToString("dd MMM yyyy")</div></td><td>@row.Enrollment.EventDate.ToString("dd MMM yyyy")<div class="table-subtext">@row.Enrollment.EventLocation</div></td><td>@row.Enrollment.CategoryName</td><td><span class="status-chip @(row.Status == "Upcoming" ? "status-upcoming" : row.Status == "Result published" ? "status-complete" : "status-muted")">@row.Status</span>@if (row.ResultSummary != null) { <div class="table-subtext">@row.ResultSummary</div> }</td><td><a class="text-link" asp-action="Details" asp-route-eventID="@row.Enrollment.EventID">Details →</a></td></tr>
+    }
+    </tbody></table></div></div>
+}

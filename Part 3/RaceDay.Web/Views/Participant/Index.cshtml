@@ -1,0 +1,27 @@
+@model ParticipantEventsViewModel
+@{
+    ViewData["Title"] = "Explore races";
+}
+<div class="page-heading"><div><span class="eyebrow eyebrow-dark">YOUR NEXT CHALLENGE</span><h1>Find your race.</h1><p>Choose an event, pick your category and get ready to go.</p></div><div class="heading-note"><strong>Every pace belongs.</strong><span>Start where you are.</span></div></div>
+<form asp-action="Index" method="get" class="filter-bar">
+    <div class="filter-search"><span>⌕</span><input name="search" value="@Model.Search" class="form-control" placeholder="Search event or location" /></div>
+    <select name="eventType" class="form-select"><option value="">All event types</option>@foreach (var type in new[] { "Road race", "Trail run", "Fun run", "Marathon", "Half marathon", "Cross-country", "Other" }) { <option value="@type" selected="@(Model.EventType == type ? "selected" : null)">@type</option> }</select>
+    <button class="btn btn-dark" type="submit">Find races</button>
+    <a class="filter-reset" asp-action="Index">Reset</a>
+</form>
+@if (Model.Events.Count == 0)
+{
+    <div class="empty-state"><div class="empty-icon">⌕</div><h3>No races match that search</h3><p>Try a different name, location or event type.</p><a class="text-link" asp-action="Index">Clear filters</a></div>
+}
+else
+{
+    <div class="event-grid">
+    @foreach (var raceEvent in Model.Events)
+    {
+        <article class="event-card">
+            <div class="event-card-art"><span class="event-type-pill">@raceEvent.EventType</span><span class="event-card-symbol">↗</span><div class="event-card-date"><strong>@raceEvent.Date.ToString("dd")</strong><span>@raceEvent.Date.ToString("MMM")</span></div></div>
+            <div class="event-card-body"><div class="event-meta">@raceEvent.Location <span>·</span> @raceEvent.Distance</div><h3>@raceEvent.Name</h3><p>@(raceEvent.Description.Length > 105 ? raceEvent.Description[..105] + "…" : raceEvent.Description)</p><a class="card-link" asp-action="Details" asp-route-eventID="@raceEvent.EventID">Explore event <span>→</span></a></div>
+        </article>
+    }
+    </div>
+}

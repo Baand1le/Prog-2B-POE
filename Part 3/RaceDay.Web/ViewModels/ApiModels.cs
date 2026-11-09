@@ -1,4 +1,4 @@
-﻿namespace RaceDay.Web.ViewModels;
+namespace RaceDay.Web.ViewModels;
 
 public class ApiLoginResponse
 {

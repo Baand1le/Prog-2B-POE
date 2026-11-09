@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace RaceDay.Web.Services;
 
+/// <summary>Stores uploaded images beneath wwwroot/uploads without using cloud storage.</summary>
 public class LocalImageService
 {
     private readonly IWebHostEnvironment _environment;
