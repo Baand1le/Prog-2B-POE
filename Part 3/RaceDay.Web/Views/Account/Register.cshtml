@@ -1,0 +1,20 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Create account";
+}
+<div class="auth-shell auth-shell-tall">
+    <div class="auth-aside"><span class="eyebrow">JOIN THE COMMUNITY</span><h1>Every runner<br />has a <span>story.</span></h1><p>Start yours with RaceDay. Find events, track your progress and celebrate every milestone.</p><div class="auth-aside-mark">RD<span>.</span></div></div>
+    <div class="auth-panel">
+        <div class="form-heading"><span class="eyebrow eyebrow-dark">LET'S GET YOU STARTED</span><h2>Create account</h2><p>A few details and you're ready to go.</p></div>
+        <form asp-action="Register" method="post" class="app-form">
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+            <div class="form-row"><div class="form-field"><label asp-for="FirstName"></label><input asp-for="FirstName" class="form-control" placeholder="First name" /><span asp-validation-for="FirstName" class="field-error"></span></div><div class="form-field"><label asp-for="Surname"></label><input asp-for="Surname" class="form-control" placeholder="Surname" /><span asp-validation-for="Surname" class="field-error"></span></div></div>
+            <div class="form-field"><label asp-for="Email"></label><input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" /><span asp-validation-for="Email" class="field-error"></span></div>
+            <div class="form-field"><label asp-for="RoleType"></label><select asp-for="RoleType" class="form-select"><option value="Participant">Participant — I want to join races</option><option value="Organiser">Organiser — I want to host races</option></select><span asp-validation-for="RoleType" class="field-error"></span></div>
+            <div class="form-row"><div class="form-field"><label asp-for="Password"></label><input asp-for="Password" class="form-control" placeholder="At least 8 characters" /><span asp-validation-for="Password" class="field-error"></span></div><div class="form-field"><label asp-for="ConfirmPassword"></label><input asp-for="ConfirmPassword" class="form-control" placeholder="Repeat password" /><span asp-validation-for="ConfirmPassword" class="field-error"></span></div></div>
+            <button class="btn btn-accent btn-lg w-100" type="submit">Create my account <span>↗</span></button>
+        </form>
+        <p class="auth-switch">Already registered? <a asp-action="Login">Sign in</a></p>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
