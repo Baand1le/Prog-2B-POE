@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "RaceDayApp_POE": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:10504;http://localhost:10505"
+    }
+  }
+}
