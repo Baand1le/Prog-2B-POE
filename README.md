@@ -1,6 +1,8 @@
 
 # RaceDay Management System
 
+**Unlisted YouTube Video:** https://youtu.be/9kiV4AAdrtE
+
 ## Project Overview
 
 RaceDay is a race event management system developed using C#, ASP.NET Core Web API, Entity Framework Core, and Microsoft SQL Server.
@@ -557,7 +559,7 @@ The Part 2 demonstration video will show:
 - Automated test execution
 - GitHub Actions CI results
 
-**Unlisted YouTube Video:** 
+**Unlisted YouTube Video:** https://youtu.be/9kiV4AAdrtE
 
 ---
 
