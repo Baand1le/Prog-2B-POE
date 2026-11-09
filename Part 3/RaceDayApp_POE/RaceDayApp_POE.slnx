@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="../appTesting/appTesting.csproj" Id="81d6295e-7136-4939-a32c-0dfab887a93b" />
+  <Project Path="../RaceDay.Web/RaceDay.Web.csproj" Id="ca36878f-a19f-4c42-aa8f-8892d822e488" />
   <Project Path="RaceDayApp_POE.csproj" />
 </Solution>
