@@ -1,0 +1,19 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign in";
+}
+<div class="auth-shell">
+    <div class="auth-aside"><span class="eyebrow">WELCOME BACK</span><h1>Your next<br /><span>finish line</span><br />awaits.</h1><p>Sign in and get back to what moves you.</p><div class="auth-aside-mark">RD<span>.</span></div></div>
+    <div class="auth-panel">
+        <div class="form-heading"><span class="eyebrow eyebrow-dark">RACEDAY ACCOUNT</span><h2>Sign in</h2><p>Good to have you back. Enter your details below.</p></div>
+        <form asp-action="Login" method="post" class="app-form">
+            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+            <div class="form-field"><label asp-for="Email"></label><input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" /><span asp-validation-for="Email" class="field-error"></span></div>
+            <div class="form-field"><label asp-for="Password"></label><input asp-for="Password" class="form-control" placeholder="Enter your password" autocomplete="current-password" /><span asp-validation-for="Password" class="field-error"></span></div>
+            <button class="btn btn-accent btn-lg w-100" type="submit">Sign in <span>↗</span></button>
+        </form>
+        <p class="auth-switch">New to RaceDay? <a asp-action="Register">Create an account</a></p>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
